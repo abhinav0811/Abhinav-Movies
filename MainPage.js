@@ -1,53 +1,42 @@
 let API = '16d5eeae';
 let input = document.querySelector("input");
 let button = document.querySelector("button");
-let div = document.querySelector("div");
+let ul = document.querySelector("ul");
 
-
-// Click Button for Fetch Movie
-button.addEventListener('click',()=>
-{
+button.addEventListener('click', () => {
     const trim = input.value.trim();
-    if(trim !== '')
-    {
-        FetchMovie(trim);
+    if (trim !== '') {
+        FetchMovies(trim);
     }
-})
+});
 
+async function FetchMovies(searchTerm) {
+    try {
+        const movieAPI = await fetch(`https://www.omdbapi.com/?apikey=${API}&s=${searchTerm}`);
+        const response = await movieAPI.json();
 
-// Fetching Movie 
-async function FetchMovie(movie)
-{
-    try{
-        const movieAPI = await fetch(`https://www.omdbapi.com/?apikey=${API}&t=${movie}`);
-        const data = await movieAPI.json();
-
-        if(data.Response === 'True')
-        {
-            ShowMovie(data);
+        if (response.Response === 'True') {
+            ShowMovies(response.Search);
+        } else {
+            ul.innerHTML = "Movies not found.";
         }
-        else
-        {
-            div.innerHTML="Movie not Found";
-        }
-    }
-    catch(error)
-    {
-        div.innerHTML="Not a Proper API";
+    } catch (error) {
+        ul.innerHTML = "Error fetching data.";
     }
 }
 
-
-
-
-// Display Moive Details
-function ShowMovie(data)
-{
-    div.innerHTML=`
-    <h2>${data.Title}</h2>
-    <img src=${data.Poster}>
-    <p>${data.Year}</p>
-    <p>${data.Plot}</p>
-    <p>${data.Director}</p>
-    `
+function ShowMovies(movies) {
+    ul.innerHTML = ''; 
+    movies.forEach(movie => {
+        ul.innerHTML += `
+            <li>
+                <h2>${movie.Title}</h2>
+                <img src="${movie.Poster}">
+                <p>${movie.Year}</p>
+                <p>${movie.Type}</p>
+                <br><br><br>
+                <hr>
+            </li>
+        `;
+    });
 }
